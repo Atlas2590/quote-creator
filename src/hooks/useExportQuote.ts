@@ -1,6 +1,8 @@
 import { useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
 export function useExportQuote() {
   const [isExporting, setIsExporting] = useState(false);
@@ -9,23 +11,44 @@ export function useExportQuote() {
     setIsExporting(true);
     
     try {
-      const { data, error } = await supabase.functions.invoke('export-quote', {
-        body: { quoteId, format },
+      // Use fetch directly for binary response handling
+      const response = await fetch(`${SUPABASE_URL}/functions/v1/export-quote`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+          'apikey': SUPABASE_ANON_KEY,
+        },
+        body: JSON.stringify({ quoteId, format }),
       });
 
-      if (error) {
-        throw error;
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Export failed');
       }
 
-      // Convert the response to blob and download
-      const blob = new Blob([data], { 
+      // Get the binary data as ArrayBuffer
+      const arrayBuffer = await response.arrayBuffer();
+      
+      // Create blob from ArrayBuffer
+      const blob = new Blob([arrayBuffer], { 
         type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' 
       });
+      
+      // Extract filename from Content-Disposition header if available
+      const contentDisposition = response.headers.get('Content-Disposition');
+      let filename = `preventivo_${quoteId}.docx`;
+      if (contentDisposition) {
+        const match = contentDisposition.match(/filename="(.+)"/);
+        if (match) {
+          filename = match[1];
+        }
+      }
       
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `preventivo_${quoteId}.docx`;
+      a.download = filename;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
