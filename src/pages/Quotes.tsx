@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Plus, Search, FileText, MoreHorizontal, Eye, Pencil, Trash2, Download } from 'lucide-react';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
@@ -40,6 +40,7 @@ import { formatCurrency } from '@/lib/utils';
 import type { Quote, QuoteStatus } from '@/types/database';
 
 export default function Quotes() {
+  const navigate = useNavigate();
   const { data: quotes = [], isLoading } = useQuotes();
   const deleteQuote = useDeleteQuote();
   const updateStatus = useUpdateQuoteStatus();
@@ -136,7 +137,11 @@ export default function Quotes() {
               </TableHeader>
               <TableBody>
                 {filteredQuotes.map((quote) => (
-                  <TableRow key={quote.id}>
+                  <TableRow 
+                    key={quote.id} 
+                    className="cursor-pointer hover:bg-accent/50"
+                    onClick={() => navigate(`/quotes/${quote.id}`)}
+                  >
                     <TableCell className="font-medium">
                       #{quote.quote_number}
                     </TableCell>
@@ -146,7 +151,7 @@ export default function Quotes() {
                     <TableCell>
                       {format(new Date(quote.quote_date), 'dd MMM yyyy', { locale: it })}
                     </TableCell>
-                    <TableCell>
+                    <TableCell onClick={(e) => e.stopPropagation()}>
                       <QuoteStatusSelect 
                         value={quote.status}
                         onValueChange={(status) => handleStatusChange(quote.id, status)}
@@ -155,7 +160,7 @@ export default function Quotes() {
                     <TableCell className="text-right font-semibold">
                       {formatCurrency(Number(quote.total_amount))}
                     </TableCell>
-                    <TableCell>
+                    <TableCell onClick={(e) => e.stopPropagation()}>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" size="icon" className="h-8 w-8">
