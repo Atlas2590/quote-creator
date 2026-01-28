@@ -14,6 +14,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { useQuote, useQuoteItems, useUpdateQuoteStatus } from '@/hooks/useQuotes';
+import { useExportQuote } from '@/hooks/useExportQuote';
 import { QuoteStatusSelect } from '@/components/quotes/QuoteStatusSelect';
 import { toast } from '@/hooks/use-toast';
 import { formatCurrency } from '@/lib/utils';
@@ -25,6 +26,7 @@ export default function QuoteDetail() {
   const { data: quote, isLoading } = useQuote(id);
   const { data: items = [] } = useQuoteItems(id);
   const updateStatus = useUpdateQuoteStatus();
+  const { exportQuote, isExporting } = useExportQuote();
 
   const handleStatusChange = async (status: QuoteStatus) => {
     if (!id) return;
@@ -74,9 +76,13 @@ export default function QuoteDetail() {
         </div>
         <div className="flex items-center gap-3">
           <QuoteStatusSelect value={quote.status} onValueChange={handleStatusChange} />
-          <Button variant="outline">
+          <Button 
+            variant="outline" 
+            onClick={() => id && exportQuote(id)}
+            disabled={isExporting}
+          >
             <Download className="w-4 h-4 mr-2" />
-            Esporta
+            {isExporting ? 'Esportando...' : 'Esporta'}
           </Button>
           <Button asChild className="gradient-primary border-0">
             <Link to={`/quotes/${id}/edit`}>

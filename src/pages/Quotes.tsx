@@ -32,6 +32,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { useQuotes, useDeleteQuote, useUpdateQuoteStatus } from '@/hooks/useQuotes';
+import { useExportQuote } from '@/hooks/useExportQuote';
 import { QuoteStatusBadge } from '@/components/quotes/QuoteStatusBadge';
 import { QuoteStatusSelect } from '@/components/quotes/QuoteStatusSelect';
 import { toast } from '@/hooks/use-toast';
@@ -42,6 +43,7 @@ export default function Quotes() {
   const { data: quotes = [], isLoading } = useQuotes();
   const deleteQuote = useDeleteQuote();
   const updateStatus = useUpdateQuoteStatus();
+  const { exportQuote, isExporting } = useExportQuote();
   const [search, setSearch] = useState('');
   const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; quote: Quote | null }>({
     open: false,
@@ -173,9 +175,9 @@ export default function Quotes() {
                               Modifica
                             </Link>
                           </DropdownMenuItem>
-                          <DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => exportQuote(quote.id)}>
                             <Download className="w-4 h-4 mr-2" />
-                            Esporta PDF
+                            Esporta Word
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem 
