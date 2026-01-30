@@ -13,8 +13,17 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://mongo:27017/preventivi';
 
-// Middleware
-app.use(cors());
+// Middleware CORS - configurazione completa per preflight
+app.use(cors({
+  origin: true, // Accetta qualsiasi origine
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
+}));
+
+// Handle preflight requests
+app.options('*', cors());
+
 app.use(express.json());
 
 // Routes
