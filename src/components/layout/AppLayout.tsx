@@ -48,7 +48,7 @@ export function AppLayout({ children }: AppLayoutProps) {
             <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center">
               <FileText className="w-5 h-5 text-primary-foreground" />
             </div>
-            <span className="text-lg font-semibold text-sidebar-foreground">QuotePro</span>
+            <span className="text-lg font-semibold text-sidebar-foreground">Sistema 54</span>
           </Link>
           <button 
             onClick={() => setSidebarOpen(false)}
