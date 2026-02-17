@@ -25,7 +25,7 @@ const quoteSchema = new mongoose.Schema({
   quote_number: { type: Number, unique: true },
   client_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Client', required: true },
   quote_date: { type: Date, default: Date.now },
-  validity_days: { type: Number, default: 30 },
+  validity_days: { type: Number, default: 5 },
   status: { 
     type: String, 
     enum: ['bozza', 'da_controllare', 'da_confermare', 'inviato', 'accettato', 'rifiutato', 'annullato'],

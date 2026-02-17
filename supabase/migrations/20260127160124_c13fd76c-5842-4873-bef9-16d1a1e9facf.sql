@@ -34,7 +34,7 @@ CREATE TABLE public.quotes (
   quote_number SERIAL,
   client_id UUID REFERENCES public.clients(id) ON DELETE RESTRICT NOT NULL,
   quote_date DATE NOT NULL DEFAULT CURRENT_DATE,
-  validity_days INTEGER DEFAULT 30,
+  validity_days INTEGER DEFAULT 5,
   status quote_status NOT NULL DEFAULT 'bozza',
   notes TEXT,
   total_amount DECIMAL(10,2) DEFAULT 0,

@@ -67,7 +67,7 @@ router.post('/', async (req, res) => {
     const quote = new Quote({
       client_id: req.body.client_id,
       quote_date: req.body.quote_date || new Date(),
-      validity_days: req.body.validity_days || 30,
+      validity_days: req.body.validity_days || 5,
       notes: req.body.notes,
       items: []
     });

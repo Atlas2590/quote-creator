@@ -61,7 +61,7 @@ router.post('/:id', async (req, res) => {
     const templateData = {
       numero_preventivo: quote.quote_number,
       data_preventivo: formattedDate,
-      validita_giorni: quote.validity_days || 30,
+      validita_giorni: quote.validity_days || 5,
       ragione_sociale: client?.company_name || '',
       indirizzo: client?.address || '',
       cap: client?.postal_code || '',

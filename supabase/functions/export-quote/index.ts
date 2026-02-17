@@ -118,7 +118,7 @@ serve(async (req) => {
       // Quote info
       numero_preventivo: quote.quote_number,
       data_preventivo: formattedDate,
-      validita_giorni: quote.validity_days || 30,
+      validita_giorni: quote.validity_days || 5,
       
       // Client info
       ragione_sociale: quote.client?.company_name || '',

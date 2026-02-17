@@ -78,7 +78,7 @@ export default function QuoteForm() {
     defaultValues: {
       client_id: "",
       quote_date: format(new Date(), "yyyy-MM-dd"),
-      validity_days: 30,
+      validity_days: 5,
       notes: "",
       items: [{ description: "", item_notes: "", quantity: 1, unit_price: 0 }],
     },
@@ -94,7 +94,7 @@ export default function QuoteForm() {
       form.reset({
         client_id: existingQuote.client_id,
         quote_date: existingQuote.quote_date,
-        validity_days: existingQuote.validity_days ?? 30,
+        validity_days: existingQuote.validity_days ?? 5,
         notes: existingQuote.notes ?? "",
         items:
           existingItems.length > 0
