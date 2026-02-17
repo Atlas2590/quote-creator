@@ -43,6 +43,7 @@ export interface QuoteItem {
   id: string;
   quote_id: string;
   description: string;
+  item_notes: string;
   quantity: number;
   unit_price: number;
   sort_order: number;

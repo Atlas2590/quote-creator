@@ -3,6 +3,7 @@ import Counter from './Counter.js';
 
 const quoteItemSchema = new mongoose.Schema({
   description: { type: String, required: true },
+  item_notes: { type: String, default: '' },
   quantity: { type: Number, default: 1 },
   unit_price: { type: Number, default: 0 },
   sort_order: { type: Number, default: 0 },
