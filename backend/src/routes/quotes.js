@@ -154,6 +154,7 @@ router.post('/:id/items', async (req, res) => {
     
     quote.items.push({
       description: req.body.description,
+      item_notes: req.body.item_notes || '',
       quantity: req.body.quantity || 1,
       unit_price: req.body.unit_price || 0,
       sort_order: req.body.sort_order || quote.items.length
@@ -187,6 +188,7 @@ router.put('/:quoteId/items/:itemId', async (req, res) => {
     
     Object.assign(item, {
       description: req.body.description ?? item.description,
+      item_notes: req.body.item_notes ?? item.item_notes,
       quantity: req.body.quantity ?? item.quantity,
       unit_price: req.body.unit_price ?? item.unit_price,
       sort_order: req.body.sort_order ?? item.sort_order

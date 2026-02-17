@@ -51,6 +51,7 @@ router.post('/:id', async (req, res) => {
     const itemsData = quote.items.map((item, index) => ({
       n: index + 1,
       descrizione: item.description,
+      note_articolo: item.item_notes || '',
       quantita: item.quantity,
       prezzo_unitario: formatCurrency(item.unit_price),
       totale_riga: formatCurrency(item.quantity * item.unit_price)

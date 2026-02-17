@@ -1,10 +1,17 @@
-import { Link, useNavigate, useParams } from 'react-router-dom';
-import { format } from 'date-fns';
-import { it } from 'date-fns/locale';
-import { ArrowLeft, Pencil, Download, Building2, Calendar, Clock } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { format } from "date-fns";
+import { it } from "date-fns/locale";
+import {
+  ArrowLeft,
+  Pencil,
+  Download,
+  Building2,
+  Calendar,
+  Clock,
+} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import {
   Table,
   TableBody,
@@ -12,13 +19,17 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { useQuote, useQuoteItems, useUpdateQuoteStatus } from '@/hooks/useQuotes';
-import { useExportQuote } from '@/hooks/useExportQuote';
-import { QuoteStatusSelect } from '@/components/quotes/QuoteStatusSelect';
-import { toast } from '@/hooks/use-toast';
-import { formatCurrency } from '@/lib/utils';
-import type { QuoteStatus } from '@/types/database';
+} from "@/components/ui/table";
+import {
+  useQuote,
+  useQuoteItems,
+  useUpdateQuoteStatus,
+} from "@/hooks/useQuotes";
+import { useExportQuote } from "@/hooks/useExportQuote";
+import { QuoteStatusSelect } from "@/components/quotes/QuoteStatusSelect";
+import { toast } from "@/hooks/use-toast";
+import { formatCurrency } from "@/lib/utils";
+import type { QuoteStatus } from "@/types/database";
 
 export default function QuoteDetail() {
   const navigate = useNavigate();
@@ -32,14 +43,22 @@ export default function QuoteDetail() {
     if (!id) return;
     try {
       await updateStatus.mutateAsync({ id, status });
-      toast({ title: 'Stato aggiornato' });
+      toast({ title: "Stato aggiornato" });
     } catch (error) {
-      toast({ title: 'Errore', description: 'Impossibile aggiornare lo stato', variant: 'destructive' });
+      toast({
+        title: "Errore",
+        description: "Impossibile aggiornare lo stato",
+        variant: "destructive",
+      });
     }
   };
 
   if (isLoading) {
-    return <div className="text-center py-12 text-muted-foreground">Caricamento...</div>;
+    return (
+      <div className="text-center py-12 text-muted-foreground">
+        Caricamento...
+      </div>
+    );
   }
 
   if (!quote) {
@@ -53,8 +72,11 @@ export default function QuoteDetail() {
     );
   }
 
-  const validUntil = quote.validity_days 
-    ? new Date(new Date(quote.quote_date).getTime() + quote.validity_days * 24 * 60 * 60 * 1000)
+  const validUntil = quote.validity_days
+    ? new Date(
+        new Date(quote.quote_date).getTime() +
+          quote.validity_days * 24 * 60 * 60 * 1000,
+      )
     : null;
 
   return (
@@ -62,7 +84,11 @@ export default function QuoteDetail() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate('/quotes')}>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate("/quotes")}
+          >
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div>
@@ -70,19 +96,25 @@ export default function QuoteDetail() {
               Preventivo #{quote.quote_number}
             </h1>
             <p className="text-muted-foreground">
-              Creato il {format(new Date(quote.created_at), 'dd MMMM yyyy', { locale: it })}
+              Creato il{" "}
+              {format(new Date(quote.created_at), "dd MMMM yyyy", {
+                locale: it,
+              })}
             </p>
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <QuoteStatusSelect value={quote.status} onValueChange={handleStatusChange} />
-          <Button 
-            variant="outline" 
+          <QuoteStatusSelect
+            value={quote.status}
+            onValueChange={handleStatusChange}
+          />
+          <Button
+            variant="outline"
             onClick={() => id && exportQuote(id)}
             disabled={isExporting}
           >
             <Download className="w-4 h-4 mr-2" />
-            {isExporting ? 'Esportando...' : 'Esporta'}
+            {isExporting ? "Esportando..." : "Esporta"}
           </Button>
           <Button asChild className="gradient-primary border-0">
             <Link to={`/quotes/${id}/edit`}>
@@ -114,22 +146,37 @@ export default function QuoteDetail() {
                 <TableBody>
                   {items.map((item) => (
                     <TableRow key={item.id}>
-                      <TableCell>{item.description}</TableCell>
-                      <TableCell className="text-right">{item.quantity}</TableCell>
-                      <TableCell className="text-right">{formatCurrency(Number(item.unit_price))}</TableCell>
+                      <TableCell>
+                        <div>{item.description}</div>
+                        {item.item_notes && (
+                          <p className="text-xs text-muted-foreground mt-1 whitespace-pre-wrap">
+                            {item.item_notes}
+                          </p>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {item.quantity}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {formatCurrency(Number(item.unit_price))}
+                      </TableCell>
                       <TableCell className="text-right font-medium">
-                        {formatCurrency(Number(item.quantity) * Number(item.unit_price))}
+                        {formatCurrency(
+                          Number(item.quantity) * Number(item.unit_price),
+                        )}
                       </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
-              
+
               <Separator className="my-4" />
-              
+
               <div className="flex justify-end">
                 <div className="text-right">
-                  <p className="text-sm text-muted-foreground">Totale Preventivo</p>
+                  <p className="text-sm text-muted-foreground">
+                    Totale Preventivo
+                  </p>
                   <p className="text-3xl font-bold text-foreground">
                     {formatCurrency(Number(quote.total_amount))}
                   </p>
@@ -145,7 +192,9 @@ export default function QuoteDetail() {
                 <CardTitle>Note</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground whitespace-pre-wrap">{quote.notes}</p>
+                <p className="text-muted-foreground whitespace-pre-wrap">
+                  {quote.notes}
+                </p>
               </CardContent>
             </Card>
           )}
@@ -162,18 +211,24 @@ export default function QuoteDetail() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
-              <p className="font-semibold text-foreground">{quote.client?.company_name}</p>
+              <p className="font-semibold text-foreground">
+                {quote.client?.company_name}
+              </p>
               {quote.client?.address && (
-                <p className="text-sm text-muted-foreground">{quote.client.address}</p>
+                <p className="text-sm text-muted-foreground">
+                  {quote.client.address}
+                </p>
               )}
               {quote.client?.city && (
                 <p className="text-sm text-muted-foreground">
-                  {quote.client.postal_code} {quote.client.city} 
+                  {quote.client.postal_code} {quote.client.city}
                   {quote.client.province && ` (${quote.client.province})`}
                 </p>
               )}
               {quote.client?.vat_number && (
-                <p className="text-sm text-muted-foreground">P.IVA: {quote.client.vat_number}</p>
+                <p className="text-sm text-muted-foreground">
+                  P.IVA: {quote.client.vat_number}
+                </p>
               )}
             </CardContent>
           </Card>
@@ -188,16 +243,20 @@ export default function QuoteDetail() {
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="flex justify-between">
-                <span className="text-sm text-muted-foreground">Data preventivo</span>
+                <span className="text-sm text-muted-foreground">
+                  Data preventivo
+                </span>
                 <span className="text-sm font-medium">
-                  {format(new Date(quote.quote_date), 'dd/MM/yyyy')}
+                  {format(new Date(quote.quote_date), "dd/MM/yyyy")}
                 </span>
               </div>
               {validUntil && (
                 <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">Valido fino al</span>
+                  <span className="text-sm text-muted-foreground">
+                    Valido fino al
+                  </span>
                   <span className="text-sm font-medium">
-                    {format(validUntil, 'dd/MM/yyyy')}
+                    {format(validUntil, "dd/MM/yyyy")}
                   </span>
                 </div>
               )}

@@ -1,14 +1,14 @@
-import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { useForm, useFieldArray } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { ArrowLeft, Save, Plus, Trash2 } from 'lucide-react';
-import { format } from 'date-fns';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { useForm, useFieldArray } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { ArrowLeft, Save, Plus, Trash2 } from "lucide-react";
+import { format } from "date-fns";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Form,
   FormControl,
@@ -16,40 +16,41 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
+} from "@/components/ui/form";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { useClients } from '@/hooks/useClients';
-import { 
-  useQuote, 
-  useQuoteItems, 
-  useCreateQuote, 
+} from "@/components/ui/select";
+import { useClients } from "@/hooks/useClients";
+import {
+  useQuote,
+  useQuoteItems,
+  useCreateQuote,
   useUpdateQuote,
   useCreateQuoteItem,
   useUpdateQuoteItem,
-  useDeleteQuoteItem
-} from '@/hooks/useQuotes';
-import { toast } from '@/hooks/use-toast';
-import { formatCurrency } from '@/lib/utils';
+  useDeleteQuoteItem,
+} from "@/hooks/useQuotes";
+import { toast } from "@/hooks/use-toast";
+import { formatCurrency } from "@/lib/utils";
 
 const quoteItemSchema = z.object({
   id: z.string().optional(),
-  description: z.string().min(1, 'Descrizione obbligatoria'),
-  quantity: z.coerce.number().min(0.01, 'Quantità richiesta'),
-  unit_price: z.coerce.number().min(0, 'Prezzo non valido'),
+  description: z.string().min(1, "Descrizione obbligatoria"),
+  item_notes: z.string().optional(),
+  quantity: z.coerce.number().min(0.01, "Quantità richiesta"),
+  unit_price: z.coerce.number().min(0, "Prezzo non valido"),
 });
 
 const quoteSchema = z.object({
-  client_id: z.string().min(1, 'Seleziona un cliente'),
-  quote_date: z.string().min(1, 'Data obbligatoria'),
+  client_id: z.string().min(1, "Seleziona un cliente"),
+  quote_date: z.string().min(1, "Data obbligatoria"),
   validity_days: z.coerce.number().min(1).max(365),
   notes: z.string().optional(),
-  items: z.array(quoteItemSchema).min(1, 'Aggiungi almeno un articolo'),
+  items: z.array(quoteItemSchema).min(1, "Aggiungi almeno un articolo"),
 });
 
 type QuoteFormData = z.infer<typeof quoteSchema>;
@@ -58,11 +59,12 @@ export default function QuoteForm() {
   const navigate = useNavigate();
   const { id } = useParams();
   const isEditing = !!id;
-  
+
   const { data: clients = [] } = useClients();
   const { data: existingQuote, isLoading: quoteLoading } = useQuote(id);
-  const { data: existingItems = [], isLoading: itemsLoading } = useQuoteItems(id);
-  
+  const { data: existingItems = [], isLoading: itemsLoading } =
+    useQuoteItems(id);
+
   const createQuote = useCreateQuote();
   const updateQuote = useUpdateQuote();
   const createItem = useCreateQuoteItem();
@@ -74,17 +76,17 @@ export default function QuoteForm() {
   const form = useForm<QuoteFormData>({
     resolver: zodResolver(quoteSchema),
     defaultValues: {
-      client_id: '',
-      quote_date: format(new Date(), 'yyyy-MM-dd'),
+      client_id: "",
+      quote_date: format(new Date(), "yyyy-MM-dd"),
       validity_days: 30,
-      notes: '',
-      items: [{ description: '', quantity: 1, unit_price: 0 }],
+      notes: "",
+      items: [{ description: "", item_notes: "", quantity: 1, unit_price: 0 }],
     },
   });
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
-    name: 'items',
+    name: "items",
   });
 
   useEffect(() => {
@@ -93,20 +95,22 @@ export default function QuoteForm() {
         client_id: existingQuote.client_id,
         quote_date: existingQuote.quote_date,
         validity_days: existingQuote.validity_days ?? 30,
-        notes: existingQuote.notes ?? '',
-        items: existingItems.length > 0 
-          ? existingItems.map(item => ({
-              id: item.id,
-              description: item.description,
-              quantity: Number(item.quantity),
-              unit_price: Number(item.unit_price),
-            }))
-          : [{ description: '', quantity: 1, unit_price: 0 }],
+        notes: existingQuote.notes ?? "",
+        items:
+          existingItems.length > 0
+            ? existingItems.map((item) => ({
+                id: item.id,
+                description: item.description,
+                item_notes: item.item_notes,
+                quantity: Number(item.quantity),
+                unit_price: Number(item.unit_price),
+              }))
+            : [{ description: "", item_notes: "", quantity: 1, unit_price: 0 }],
       });
     }
   }, [existingQuote, existingItems, form]);
 
-  const watchedItems = form.watch('items');
+  const watchedItems = form.watch("items");
   const total = watchedItems.reduce((sum, item) => {
     return sum + (Number(item.quantity) || 0) * (Number(item.unit_price) || 0);
   }, 0);
@@ -126,9 +130,9 @@ export default function QuoteForm() {
         });
 
         // Handle items: delete removed, update existing, create new
-        const existingIds = existingItems.map(i => i.id);
-        const currentIds = data.items.filter(i => i.id).map(i => i.id!);
-        
+        const existingIds = existingItems.map((i) => i.id);
+        const currentIds = data.items.filter((i) => i.id).map((i) => i.id!);
+
         // Delete removed items
         for (const existingId of existingIds) {
           if (!currentIds.includes(existingId)) {
@@ -144,6 +148,7 @@ export default function QuoteForm() {
               id: item.id,
               quote_id: id,
               description: item.description,
+              item_notes: item.item_notes,
               quantity: item.quantity,
               unit_price: item.unit_price,
               sort_order: i,
@@ -152,6 +157,7 @@ export default function QuoteForm() {
             await createItem.mutateAsync({
               quote_id: id,
               description: item.description,
+              item_notes: item.item_notes || "",
               quantity: item.quantity,
               unit_price: item.unit_price,
               sort_order: i,
@@ -159,7 +165,7 @@ export default function QuoteForm() {
           }
         }
 
-        toast({ title: 'Preventivo aggiornato' });
+        toast({ title: "Preventivo aggiornato" });
       } else {
         const newQuote = await createQuote.mutateAsync({
           client_id: data.client_id,
@@ -175,40 +181,56 @@ export default function QuoteForm() {
           await createItem.mutateAsync({
             quote_id: newQuote.id,
             description: item.description,
+            item_notes: item.item_notes || "",
             quantity: item.quantity,
             unit_price: item.unit_price,
             sort_order: i,
           });
         }
 
-        toast({ title: 'Preventivo creato', description: `Preventivo #${newQuote.quote_number}` });
+        toast({
+          title: "Preventivo creato",
+          description: `Preventivo #${newQuote.quote_number}`,
+        });
       }
 
       navigate(`/quotes/${quoteId}`);
     } catch (error) {
-      toast({ title: 'Errore', description: 'Impossibile salvare il preventivo', variant: 'destructive' });
+      toast({
+        title: "Errore",
+        description: "Impossibile salvare il preventivo",
+        variant: "destructive",
+      });
     } finally {
       setIsSaving(false);
     }
   };
 
   if (isEditing && (quoteLoading || itemsLoading)) {
-    return <div className="text-center py-12 text-muted-foreground">Caricamento...</div>;
+    return (
+      <div className="text-center py-12 text-muted-foreground">
+        Caricamento...
+      </div>
+    );
   }
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => navigate('/quotes')}>
+        <Button variant="ghost" size="icon" onClick={() => navigate("/quotes")}>
           <ArrowLeft className="w-5 h-5" />
         </Button>
         <div>
           <h1 className="text-2xl font-bold text-foreground">
-            {isEditing ? `Modifica Preventivo #${existingQuote?.quote_number}` : 'Nuovo Preventivo'}
+            {isEditing
+              ? `Modifica Preventivo #${existingQuote?.quote_number}`
+              : "Nuovo Preventivo"}
           </h1>
           <p className="text-muted-foreground">
-            {isEditing ? 'Modifica i dettagli del preventivo' : 'Compila i dettagli del preventivo'}
+            {isEditing
+              ? "Modifica i dettagli del preventivo"
+              : "Compila i dettagli del preventivo"}
           </p>
         </div>
       </div>
@@ -297,7 +319,14 @@ export default function QuoteForm() {
                 type="button"
                 variant="outline"
                 size="sm"
-                onClick={() => append({ description: '', quantity: 1, unit_price: 0 })}
+                onClick={() =>
+                  append({
+                    description: "",
+                    item_notes: "",
+                    quantity: 1,
+                    unit_price: 0,
+                  })
+                }
               >
                 <Plus className="w-4 h-4 mr-2" />
                 Aggiungi
@@ -305,7 +334,10 @@ export default function QuoteForm() {
             </CardHeader>
             <CardContent className="space-y-4">
               {fields.map((field, index) => (
-                <div key={field.id} className="flex gap-3 items-start p-4 rounded-lg border border-border bg-muted/30">
+                <div
+                  key={field.id}
+                  className="flex gap-3 items-start p-4 rounded-lg border border-border bg-muted/30"
+                >
                   <div className="flex-1 space-y-3">
                     <FormField
                       control={form.control}
@@ -314,7 +346,29 @@ export default function QuoteForm() {
                         <FormItem>
                           <FormLabel className="sr-only">Descrizione</FormLabel>
                           <FormControl>
-                            <Input placeholder="Descrizione articolo" {...field} />
+                            <Input
+                              placeholder="Descrizione articolo (es. PC Acer Aspire"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name={`items.${index}.item_notes`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-xs text-muted-foreground">
+                            Note / Dettagli
+                          </FormLabel>
+                          <FormControl>
+                            <Textarea
+                              placeholder="Dettagli aggiuntivi (es. Processore, RAM...)"
+                              className="min-h-[60px] text-sm"
+                              {...field}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -326,9 +380,16 @@ export default function QuoteForm() {
                         name={`items.${index}.quantity`}
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-xs text-muted-foreground">Quantità</FormLabel>
+                            <FormLabel className="text-xs text-muted-foreground">
+                              Quantità
+                            </FormLabel>
                             <FormControl>
-                              <Input type="number" step="0.01" min="0.01" {...field} />
+                              <Input
+                                type="number"
+                                step="0.01"
+                                min="0.01"
+                                {...field}
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -339,9 +400,16 @@ export default function QuoteForm() {
                         name={`items.${index}.unit_price`}
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-xs text-muted-foreground">Prezzo Unit. (€)</FormLabel>
+                            <FormLabel className="text-xs text-muted-foreground">
+                              Prezzo Unit. (€)
+                            </FormLabel>
                             <FormControl>
-                              <Input type="number" step="0.01" min="0" {...field} />
+                              <Input
+                                type="number"
+                                step="0.01"
+                                min="0"
+                                {...field}
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -351,7 +419,10 @@ export default function QuoteForm() {
                   </div>
                   <div className="flex flex-col items-end gap-2 pt-1">
                     <span className="text-sm font-semibold text-foreground">
-                      {formatCurrency((Number(watchedItems[index]?.quantity) || 0) * (Number(watchedItems[index]?.unit_price) || 0))}
+                      {formatCurrency(
+                        (Number(watchedItems[index]?.quantity) || 0) *
+                          (Number(watchedItems[index]?.unit_price) || 0),
+                      )}
                     </span>
                     {fields.length > 1 && (
                       <Button
@@ -369,25 +440,41 @@ export default function QuoteForm() {
               ))}
 
               {form.formState.errors.items?.root && (
-                <p className="text-sm text-destructive">{form.formState.errors.items.root.message}</p>
+                <p className="text-sm text-destructive">
+                  {form.formState.errors.items.root.message}
+                </p>
               )}
 
               <div className="flex justify-end pt-4 border-t border-border">
                 <div className="text-right">
                   <p className="text-sm text-muted-foreground">Totale</p>
-                  <p className="text-2xl font-bold text-foreground">{formatCurrency(total)}</p>
+                  <p className="text-2xl font-bold text-foreground">
+                    {formatCurrency(total)}
+                  </p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
           <div className="flex justify-end gap-3">
-            <Button type="button" variant="outline" onClick={() => navigate('/quotes')}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => navigate("/quotes")}
+            >
               Annulla
             </Button>
-            <Button type="submit" className="gradient-primary border-0" disabled={isSaving}>
+            <Button
+              type="submit"
+              className="gradient-primary border-0"
+              disabled={isSaving}
+            >
               <Save className="w-4 h-4 mr-2" />
-              {isSaving ? 'Salvataggio...' : isEditing ? 'Salva Modifiche' : 'Crea Preventivo'}
+              {isSaving
+                ? "Salvataggio..."
+                : isEditing
+                  ? "Salva Modifiche"
+                  : "Crea Preventivo"}
             </Button>
           </div>
         </form>
