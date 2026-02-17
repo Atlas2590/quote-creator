@@ -40,6 +40,7 @@ import { formatCurrency } from '@/lib/utils';
 const quoteItemSchema = z.object({
   id: z.string().optional(),
   description: z.string().min(1, 'Descrizione obbligatoria'),
+  item_notes: z.string().optional(),
   quantity: z.coerce.number().min(0.01, 'Quantità richiesta'),
   unit_price: z.coerce.number().min(0, 'Prezzo non valido'),
 });
@@ -78,7 +79,7 @@ export default function QuoteForm() {
       quote_date: format(new Date(), 'yyyy-MM-dd'),
       validity_days: 30,
       notes: '',
-      items: [{ description: '', quantity: 1, unit_price: 0 }],
+      items: [{ description: '', item_notes: '', quantity: 1, unit_price: 0 }],
     },
   });
 
@@ -95,13 +96,14 @@ export default function QuoteForm() {
         validity_days: existingQuote.validity_days ?? 30,
         notes: existingQuote.notes ?? '',
         items: existingItems.length > 0 
-          ? existingItems.map(item => ({
-              id: item.id,
-              description: item.description,
-              quantity: Number(item.quantity),
-              unit_price: Number(item.unit_price),
-            }))
-          : [{ description: '', quantity: 1, unit_price: 0 }],
+           ? existingItems.map(item => ({
+               id: item.id,
+               description: item.description,
+               item_notes: item.item_notes || '',
+               quantity: Number(item.quantity),
+               unit_price: Number(item.unit_price),
+             }))
+           : [{ description: '', item_notes: '', quantity: 1, unit_price: 0 }],
       });
     }
   }, [existingQuote, existingItems, form]);
@@ -144,6 +146,7 @@ export default function QuoteForm() {
               id: item.id,
               quote_id: id,
               description: item.description,
+              item_notes: item.item_notes || '',
               quantity: item.quantity,
               unit_price: item.unit_price,
               sort_order: i,
@@ -152,6 +155,7 @@ export default function QuoteForm() {
             await createItem.mutateAsync({
               quote_id: id,
               description: item.description,
+              item_notes: item.item_notes || '',
               quantity: item.quantity,
               unit_price: item.unit_price,
               sort_order: i,
@@ -175,6 +179,7 @@ export default function QuoteForm() {
           await createItem.mutateAsync({
             quote_id: newQuote.id,
             description: item.description,
+            item_notes: item.item_notes || '',
             quantity: item.quantity,
             unit_price: item.unit_price,
             sort_order: i,
@@ -297,7 +302,7 @@ export default function QuoteForm() {
                 type="button"
                 variant="outline"
                 size="sm"
-                onClick={() => append({ description: '', quantity: 1, unit_price: 0 })}
+                onClick={() => append({ description: '', item_notes: '', quantity: 1, unit_price: 0 })}
               >
                 <Plus className="w-4 h-4 mr-2" />
                 Aggiungi
@@ -314,7 +319,24 @@ export default function QuoteForm() {
                         <FormItem>
                           <FormLabel className="sr-only">Descrizione</FormLabel>
                           <FormControl>
-                            <Input placeholder="Descrizione articolo" {...field} />
+                            <Input placeholder="Descrizione articolo (es. PC Acer Aspire)" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name={`items.${index}.item_notes`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-xs text-muted-foreground">Note / Dettagli</FormLabel>
+                          <FormControl>
+                            <Textarea 
+                              placeholder="Dettagli aggiuntivi (es. Processore i7, RAM 16GB, SSD 512GB...)" 
+                              className="min-h-[60px] text-sm"
+                              {...field} 
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>

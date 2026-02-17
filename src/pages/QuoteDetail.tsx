@@ -114,7 +114,12 @@ export default function QuoteDetail() {
                 <TableBody>
                   {items.map((item) => (
                     <TableRow key={item.id}>
-                      <TableCell>{item.description}</TableCell>
+                      <TableCell>
+                        <div>{item.description}</div>
+                        {item.item_notes && (
+                          <p className="text-xs text-muted-foreground mt-1 whitespace-pre-wrap">{item.item_notes}</p>
+                        )}
+                      </TableCell>
                       <TableCell className="text-right">{item.quantity}</TableCell>
                       <TableCell className="text-right">{formatCurrency(Number(item.unit_price))}</TableCell>
                       <TableCell className="text-right font-medium">
