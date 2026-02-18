@@ -1,6 +1,5 @@
 import mongoose from 'mongoose';
 import Counter from './Counter.js';
-import { type } from 'os';
 
 const quoteItemSchema = new mongoose.Schema({
   description: { type: String, required: true },

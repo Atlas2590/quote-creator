@@ -108,6 +108,7 @@ serve(async (req) => {
     const itemsData = (items || []).map((item, index) => ({
       n: index + 1,
       descrizione: item.description,
+      note_articolo: item.item_notes || '',
       quantita: item.quantity,
       prezzo_unitario: formatCurrency(Number(item.unit_price)),
       totale_riga: formatCurrency(Number(item.quantity) * Number(item.unit_price))
